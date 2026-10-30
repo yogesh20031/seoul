@@ -1,0 +1,258 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./tokens.css";
+@import "./glass.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@source "../../../../packages/shared/src";
+
+@theme inline {
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-float-gentle: float-gentle 3.5s ease-in-out infinite;
+  --animate-blob: blob 18s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes float-gentle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  @keyframes blob {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(6%, -8%) scale(1.08);
+    }
+    66% {
+      transform: translate(-6%, 6%) scale(0.94);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply min-h-dvh bg-background font-sans text-foreground antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--primary) 20%, transparent);
+  }
+}
+
+/*
+ * Fixed colour field behind every page. Glass only reads as glass when there's
+ * something soft and colourful to blur, so this does the heavy lifting for the look.
+ */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60% 50% at 10% 0%,
+      color-mix(in oklab, var(--primary) 14%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 40% at 100% 10%,
+      color-mix(in oklab, var(--kr-red) 10%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 50% at 50% 100%,
+      color-mix(in oklab, var(--kr-blue) 12%, transparent) 0%,
+      transparent 70%
+    ),
+    var(--background);
+}
+
+.app-backdrop::after {
+  /* Faint dot grid so large empty areas don't look flat. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--foreground) 9%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at top, black 20%, transparent 70%);
+}
+
+/* Scroll-linked drift for hero decoration; no JS, and skipped where unsupported. */
+@keyframes scroll-drift {
+  from {
+    translate: 0 var(--scroll-drift, -60px);
+  }
+  to {
+    translate: 0 calc(var(--scroll-drift, -60px) * -1);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-drift {
+      animation: scroll-drift linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob,
+  .animate-marquee,
+  .animate-float-gentle {
+    animation: none;
+  }
+}
+
+/* MapLibre's default popup is a white box; make it match the glass panels. */
+.maplibregl-popup-content {
+  @apply rounded-2xl! border! border-border! bg-popover! p-0! text-popover-foreground! shadow-lg!;
+}
+.maplibregl-popup-tip {
+  display: none;
+}
+.maplibregl-ctrl-group {
+  @apply overflow-hidden rounded-xl! border! border-border! bg-popover! shadow-md!;
+}
+.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+.maplibregl-ctrl-attrib {
+  @apply text-2xs;
+}
+
+/* Word-by-word headline entrance: each word waits 60ms longer than the one before. */
+.stagger-words > * {
+  animation-delay: 0ms;
+}
+.stagger-words > :nth-child(2) {
+  animation-delay: 60ms;
+}
+.stagger-words > :nth-child(3) {
+  animation-delay: 120ms;
+}
+.stagger-words > :nth-child(4) {
+  animation-delay: 180ms;
+}
+.stagger-words > :nth-child(5) {
+  animation-delay: 240ms;
+}
+.stagger-words > :nth-child(6) {
+  animation-delay: 300ms;
+}
+.stagger-words > :nth-child(7) {
+  animation-delay: 360ms;
+}
+.stagger-words > :nth-child(8) {
+  animation-delay: 420ms;
+}
+.stagger-words > :nth-child(9) {
+  animation-delay: 480ms;
+}
+.stagger-words > :nth-child(n + 10) {
+  animation-delay: 540ms;
+}
+
+/* Soft brand bloom in the bottom-right of the feature deck cards. */
+.feature-glow {
+  background-image:
+    radial-gradient(
+      120% 95% at 100% 100%,
+      color-mix(in oklab, var(--primary) 18%, transparent) 0%,
+      transparent 58%
+    ),
+    linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--primary) 4%, transparent) 0%,
+      transparent 60%
+    );
+}
+
+/* For swipeable chip rows: still scrollable, just without a scrollbar eating vertical space. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Footer wordmark: photos inside the letters drift and swap, standing in for Aether's video letters. */
+@theme {
+  --animate-kenburns: kenburns 16s ease-in-out infinite alternate;
+  --animate-photo-swap: photo-swap 12s ease-in-out infinite;
+
+  @keyframes kenburns {
+    from {
+      transform: scale(1.05) translate(-2%, 1%);
+    }
+    to {
+      transform: scale(1.22) translate(2%, -2%);
+    }
+  }
+
+  /* Second photo of each letter: hidden, fades in, holds, fades out. */
+  @keyframes photo-swap {
+    0%,
+    38% {
+      opacity: 0;
+    }
+    50%,
+    88% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+}

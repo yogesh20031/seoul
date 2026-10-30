@@ -1,0 +1,143 @@
+/*
+ * Glass surfaces. The recipes (edge-highlight SVG, translucent fill, inset
+ * shadow, purple button gradient) are copied from an older glass theme and
+ * rewritten as Tailwind v4 utilities so they work with the plain `dark`
+ * class instead of a separate `.glass.light` / `.glass.dark` scope.
+ *
+ * border-image ignores border-radius, which is why the edge highlight is an
+ * SVG of a rounded rectangle rather than a gradient border.
+ */
+
+:root {
+  --border-image-gradient: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22none%22%3E%3Crect%20width%3D%22199%22%20height%3D%22199%22%20x%3D%22.5%22%20y%3D%22.5%22%20stroke%3D%22url(%23a)%22%20rx%3D%2231.5%22%2F%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22a%22%20x1%3D%228.5%22%20x2%3D%22100%22%20y1%3D%220%22%20y2%3D%22241.5%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.7%22%2F%3E%3Cstop%20offset%3D%22.185%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22%2F%3E%3Cstop%20offset%3D%22.416%22%20stop-color%3D%22%23737373%22%20stop-opacity%3D%22.01%22%2F%3E%3Cstop%20offset%3D%22.290%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.01%22%2F%3E%3Cstop%20offset%3D%22.690%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.01%22%2F%3E%3Cstop%20offset%3D%224%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3C%2Fsvg%3E");
+
+  --border-image-gradient-secondary: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%2256%22%20fill%3D%22none%22%3E%3Crect%20width%3D%22199%22%20height%3D%2255%22%20x%3D%22.5%22%20y%3D%22.5%22%20stroke%3D%22url(%23a)%22%20rx%3D%2227.5%22%2F%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22a%22%20x1%3D%228.5%22%20x2%3D%2231%22%20y1%3D%220%22%20y2%3D%22104.537%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FAF9F6%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.385%22%20stop-color%3D%22%23FAF9F6%22%20stop-opacity%3D%220%22%2F%3E%3Cstop%20offset%3D%22.516%22%20stop-color%3D%22%23737373%22%20stop-opacity%3D%22.021%22%2F%3E%3Cstop%20offset%3D%22.516%22%20stop-color%3D%22%23FAF9F6%22%20stop-opacity%3D%22.01%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FAF9F6%22%20stop-opacity%3D%22.8%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3C%2Fsvg%3E");
+}
+
+@utility glass-surface {
+  border-width: 1px;
+  border-style: solid;
+  background-color: var(--glass-bg);
+  box-shadow: var(--inset-shadow-glass);
+  backdrop-filter: blur(24px) saturate(140%);
+  background-blend-mode: normal, color-dodge;
+}
+
+@utility glassy {
+  @apply rounded-2xl glass-surface;
+  border-image: var(--border-image-gradient) 48 / 24px stretch;
+}
+
+@utility glassy-md {
+  @apply rounded-lg glass-surface;
+  border-image: var(--border-image-gradient) 32 / 12px stretch;
+}
+
+@utility glassy-2xl {
+  @apply rounded-2xl glass-surface;
+  border-image: var(--border-image-gradient) 48 / 24px stretch;
+}
+
+@utility glassy-3xl {
+  @apply rounded-3xl glass-surface;
+  border-image: var(--border-image-gradient) 32 / 24px stretch;
+}
+
+@utility glassy-4xl {
+  @apply rounded-4xl glass-surface;
+  border-image: var(--border-image-gradient) 28 / 24px stretch;
+}
+
+@utility glassy-full {
+  @apply rounded-full glass-surface;
+  border-image: var(--border-image-gradient) 32 / 9999px stretch;
+}
+
+/* Square edges, e.g. a navbar pinned to the top of the viewport. */
+@utility glassy-sharp {
+  @apply glass-surface;
+  border-width: 0 0 1px;
+  border-color: color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+/* Denser glass for things that sit over busy content (menus, map popovers). */
+@utility glassy-strong {
+  @apply rounded-2xl glass-surface;
+  background-color: var(--glass-strong);
+  border-image: var(--border-image-gradient) 48 / 24px stretch;
+}
+
+@utility glassy-input {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--input-border);
+  background-color: var(--input-bg);
+  backdrop-filter: blur(12px);
+}
+
+@utility glass-btn {
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-4xl);
+  background:
+    radial-gradient(
+      101.08% 100% at 50% 100%,
+      rgba(65, 25, 244, 1) 0%,
+      rgba(65, 25, 244, 0) 73.85%
+    ),
+    radial-gradient(
+      100.02% 100% at 50% 100%,
+      rgba(180, 150, 255, 0.15) 0%,
+      rgba(180, 150, 255, 0) 55.59%
+    ),
+    linear-gradient(0deg, rgba(65, 25, 244, 0.4) 0%, var(--primary) 100%),
+    rgba(65, 25, 244, 0.1);
+  border-image: var(--border-image-gradient) 32 / 32px stretch;
+  box-shadow: var(--inset-shadow-glass);
+  backdrop-filter: blur(24px);
+
+  @variant dark {
+    border-image: var(--border-image-gradient-secondary) 30 / 32px stretch;
+    background-blend-mode: normal, color-dodge;
+  }
+}
+
+@utility glass-btn-secondary {
+  @apply glass-surface;
+  border-radius: var(--radius-4xl);
+  border-image: var(--border-image-gradient-secondary) 28 / 32px stretch;
+  backdrop-filter: blur(40px);
+}
+
+@utility glassy-hover {
+  transition:
+    background-color 200ms var(--ease-out-strong),
+    transform 200ms var(--ease-out-strong);
+
+  &:hover {
+    @apply glass-surface;
+    border-image: var(--border-image-gradient) 32 / 24px stretch;
+  }
+}
+
+/* Browsers without backdrop-filter get a solid surface rather than unreadable see-through text. */
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --glass-bg: var(--glass-strong);
+  }
+}
+
+/*
+ * Floating panels opt in with data-slot. They sit over busy content, so they get the denser overlay fill and a
+ * strong blur. Unlayered on purpose so it wins over the glassy-* utilities on the same element.
+ * Note: a panel only blurs the page if no ancestor has its own backdrop-filter (that ancestor becomes the
+ * backdrop root and the panel can only see inside it). That's why the navbar keeps its glass on a separate layer.
+ */
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="sheet-content"],
+[data-slot="dialog-content"] {
+  background: var(--overlay-content-bg);
+  background-blend-mode: normal, color-dodge;
+  backdrop-filter: blur(40px) saturate(1.8);
+}
