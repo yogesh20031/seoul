@@ -1,0 +1,326 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Neon: DATABASE_URL is the pooled connection, DIRECT_URL the direct one migrations need.
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  TRAVELLER
+  GUIDE
+}
+
+enum PlaceCategory {
+  ATTRACTION
+  RESTAURANT
+  HOTEL
+}
+
+enum TransportKind {
+  SUBWAY
+  BUS
+  TAXI
+  AIRPORT
+  TMONEY
+  APP
+}
+
+enum TourStatus {
+  DRAFT
+  OPEN
+  FULL
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum SoloStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  PAID
+  COMPLETED
+  CANCELLED
+}
+
+enum TravelMode {
+  WALK
+  SUBWAY
+}
+
+enum EarningStatus {
+  PENDING
+  AVAILABLE
+  PAID_OUT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role
+  avatarUrl    String?
+  bio          String?
+  country      String?
+  locale       String   @default("en")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  guideProfile   GuideProfile?
+  bookings       Booking[]
+  soloRequests   SoloRequest[] @relation("TravellerSoloRequests")
+  reviewsWritten Review[]      @relation("ReviewAuthor")
+  itineraries    Itinerary[]
+}
+
+model GuideProfile {
+  userId          String   @id
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline        String   @default("")
+  languages       String[]
+  specialties     String[]
+  soloPrice       Int      @default(80000)
+  soloDurationMin Int      @default(240)
+  isVerified      Boolean  @default(false)
+  ratingAvg       Float    @default(0)
+  ratingCount     Int      @default(0)
+  // Reserved for Stripe Connect payouts later.
+  stripeAccountId String?
+  createdAt       DateTime @default(now())
+
+  tours        Tour[]
+  soloRequests SoloRequest[] @relation("GuideSoloRequests")
+  reviews      Review[]
+  earnings     Earning[]
+
+  @@index([ratingAvg])
+}
+
+model Place {
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  category         PlaceCategory
+  nameEn           String
+  nameKo           String
+  descriptionEn    String
+  descriptionKo    String
+  district         String
+  address          String
+  lat              Float
+  lng              Float
+  imageUrl         String
+  imageCredit      String? // "Author / License" for the Commons photo; CC licences require showing it.
+  tags             String[]
+  priceLevel       Int?
+  openHours        String?
+  suggestedMinutes Int           @default(60)
+  nearestStation   String?
+  bookingUrl       String?
+  // Visitor detail shown on the place page. Lists stay parallel: highlightsEn[i] is highlightsKo[i].
+  highlightsEn     String[]      @default([])
+  highlightsKo     String[]      @default([])
+  tipsEn           String[]      @default([])
+  tipsKo           String[]      @default([])
+  admissionEn      String?
+  admissionKo      String?
+  bestTimeEn       String?
+  bestTimeKo       String?
+  // TourAPI contentid, for when we sync live data.
+  externalId       String?       @unique
+  createdAt        DateTime      @default(now())
+
+  dishes        Dish[]
+  tourStops     TourStop[]
+  itineraryStop ItineraryStop[]
+
+  @@index([category, district])
+}
+
+model Dish {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  nameEn        String
+  nameKo        String
+  descriptionEn String
+  descriptionKo String
+  imageUrl      String
+  imageCredit   String?
+  spiceLevel    Int     @default(0)
+  priceFrom     Int
+  whereToEat    Place[]
+}
+
+model TransportGuide {
+  id        String        @id @default(cuid())
+  slug      String        @unique
+  kind      TransportKind
+  order     Int           @default(0)
+  titleEn   String
+  titleKo   String
+  summaryEn String
+  summaryKo String
+  bodyEn    String
+  bodyKo    String
+}
+
+model Tour {
+  id             String       @id @default(cuid())
+  guideId        String
+  guide          GuideProfile @relation(fields: [guideId], references: [userId], onDelete: Cascade)
+  title          String
+  description    String
+  startsAt       DateTime
+  durationMin    Int
+  meetingName    String
+  meetingLat     Float
+  meetingLng     Float
+  capacity       Int
+  pricePerPerson Int
+  status         TourStatus   @default(OPEN)
+  coverImageUrl  String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  stops    TourStop[]
+  bookings Booking[]
+
+  @@index([status, startsAt])
+  @@index([guideId, startsAt])
+}
+
+model TourStop {
+  id      String  @id @default(cuid())
+  tourId  String
+  tour    Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  placeId String
+  place   Place   @relation(fields: [placeId], references: [id])
+  order   Int
+  note    String?
+
+  @@unique([tourId, order])
+}
+
+model Booking {
+  id                    String        @id @default(cuid())
+  tourId                String
+  tour                  Tour          @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  travellerId           String
+  traveller             User          @relation(fields: [travellerId], references: [id], onDelete: Cascade)
+  seats                 Int
+  amount                Int
+  status                BookingStatus @default(PENDING_PAYMENT)
+  // Unpaid bookings hold their seats until this moment, matching the Stripe Checkout expiry.
+  holdExpiresAt         DateTime?
+  stripeSessionId       String?       @unique
+  stripePaymentIntentId String?
+  paidAt                DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  review  Review?
+  earning Earning?
+
+  @@unique([tourId, travellerId])
+}
+
+model SoloRequest {
+  id              String       @id @default(cuid())
+  travellerId     String
+  traveller       User         @relation("TravellerSoloRequests", fields: [travellerId], references: [id], onDelete: Cascade)
+  guideId         String
+  guide           GuideProfile @relation("GuideSoloRequests", fields: [guideId], references: [userId], onDelete: Cascade)
+  date            String
+  startTime       String
+  durationMin     Int
+  note            String       @default("")
+  amount          Int
+  status          SoloStatus   @default(PENDING)
+  meetingName     String?
+  meetingLat      Float?
+  meetingLng      Float?
+  stripeSessionId String?      @unique
+  paidAt          DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  review  Review?
+  earning Earning?
+
+  @@index([guideId, status])
+  @@index([travellerId])
+}
+
+model Review {
+  id            String       @id @default(cuid())
+  guideId       String
+  guide         GuideProfile @relation(fields: [guideId], references: [userId], onDelete: Cascade)
+  authorId      String
+  author        User         @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  bookingId     String?      @unique
+  booking       Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  soloRequestId String?      @unique
+  soloRequest   SoloRequest? @relation(fields: [soloRequestId], references: [id], onDelete: SetNull)
+  rating        Int
+  comment       String       @default("")
+  createdAt     DateTime     @default(now())
+
+  @@index([guideId, createdAt])
+}
+
+model Itinerary {
+  id         String          @id @default(cuid())
+  ownerId    String?
+  owner      User?           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  shareToken String          @unique
+  title      String
+  date       String?
+  startTime  String
+  startLat   Float?
+  startLng   Float?
+  createdAt  DateTime        @default(now())
+  stops      ItineraryStop[]
+}
+
+model ItineraryStop {
+  id          String      @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary   @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  placeId     String
+  place       Place       @relation(fields: [placeId], references: [id])
+  order       Int
+  arriveAt    String
+  leaveAt     String
+  travelMin   Int
+  distanceKm  Float
+  mode        TravelMode?
+
+  @@unique([itineraryId, order])
+}
+
+model Earning {
+  id            String        @id @default(cuid())
+  guideId       String
+  guide         GuideProfile  @relation(fields: [guideId], references: [userId], onDelete: Cascade)
+  bookingId     String?       @unique
+  booking       Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  soloRequestId String?       @unique
+  soloRequest   SoloRequest?  @relation(fields: [soloRequestId], references: [id], onDelete: SetNull)
+  gross         Int
+  platformFee   Int
+  net           Int
+  status        EarningStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+
+  @@index([guideId, createdAt])
+}
