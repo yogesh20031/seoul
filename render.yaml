@@ -1,0 +1,44 @@
+# Render Blueprint for the API (free plan). Dashboard → New → Blueprint → pick this repo.
+# Render asks for every `sync: false` value while creating the service; see apps/api/.env.example.
+services:
+  - type: web
+    name: seoul-api
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    # Build from the repo root so the pnpm workspace (and @seoul/shared) resolves.
+    # Migrations run here because the free plan has no pre-deploy step.
+    buildCommand: >-
+      npm install -g pnpm@12.3.4 &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @seoul/api... build &&
+      pnpm --filter @seoul/api db:deploy
+    startCommand: pnpm --filter @seoul/api start
+    healthCheckPath: /health
+    # Only redeploy when the API or the shared contract changes.
+    buildFilter:
+      paths:
+        - apps/api/**
+        - packages/shared/**
+        - pnpm-lock.yaml
+        - render.yaml
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PAYMENTS_MODE
+        value: stripe
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: WEB_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
