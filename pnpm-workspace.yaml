@@ -1,0 +1,16 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Install scripts we trust: Prisma/esbuild/sharp download native binaries,
+# embedded-postgres unpacks the local dev database.
+allowBuilds:
+  "@embedded-postgres/darwin-arm64": true
+  "@parcel/watcher": true
+  "@prisma/client": true
+  "@prisma/engines": true
+  "@swc/core": true
+  esbuild: true
+  prisma: true
+  sharp: true
+  unrs-resolver: true
