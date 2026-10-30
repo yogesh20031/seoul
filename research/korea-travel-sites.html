@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Korea travel sites: research and UI breakdown</title>
+<style>
+  :root {
+    --bg: #f7f6f3; --card: #fff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3e1dc;
+    --accent: #c8102e; --blue: #0047a0;
+    --hero: #dbe7f6; --tiles: #fde6c8; --cards: #e2f0e2; --list: #ece6f6;
+    --filter: #fbe0e0; --widget: #e0f3f3; --footer: #d9d9d9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141416; --card: #1f1f22; --ink: #f2f2f2; --muted: #a0a0a8; --line: #333338;
+      --hero: #23364d; --tiles: #4a3a22; --cards: #23402a; --list: #352b47;
+      --filter: #4a2626; --widget: #1f4040; --footer: #3a3a3e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); }
+  header { padding: 32px 20px 20px; max-width: 1100px; margin: 0 auto; }
+  header h1 { margin: 0 0 6px; font-size: 26px; }
+  header p { margin: 0; color: var(--muted); }
+  main { max-width: 1100px; margin: 0 auto; padding: 0 20px 48px; }
+  h2 { margin: 36px 0 12px; font-size: 19px; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 18px; }
+  .chip { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); cursor: pointer; font: inherit; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: center; font-size: 14px; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-weight: 600; background: var(--bg); }
+  .yes { color: #1a7f37; font-weight: 700; }
+  .part { color: #b26a00; }
+  .no { color: var(--muted); }
+  .table-wrap { overflow-x: auto; }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  .site { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .site[hidden] { display: none; }
+  .site h3 { margin: 0; font-size: 17px; }
+  .site a { color: var(--blue); word-break: break-all; }
+  @media (prefers-color-scheme: dark) { .site a { color: #7fb0ff; } }
+  .tag { display: inline-block; margin-right: 6px; padding: 2px 8px; border-radius: 6px; background: var(--bg); color: var(--muted); font-size: 12px; }
+  .warn { color: #b26a00; font-size: 13px; }
+  .nav { font-size: 13px; color: var(--muted); }
+  .nav b { color: var(--ink); font-weight: 600; }
+
+  /* Wireframe: each block is one homepage section, top to bottom */
+  .wire { display: flex; flex-direction: column; gap: 4px; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; background: var(--bg); }
+  .wire-bar { height: 18px; border-radius: 4px; background: var(--footer); font-size: 11px; padding: 0 6px; line-height: 18px; color: var(--ink); }
+  .blk { padding: 6px 8px; border-radius: 5px; font-size: 12px; }
+  .blk.hero { min-height: 52px; background: var(--hero); }
+  .blk.tiles { background: var(--tiles); }
+  .blk.cards { background: var(--cards); }
+  .blk.list { background: var(--list); }
+  .blk.filter { background: var(--filter); }
+  .blk.widget { background: var(--widget); }
+  .blk.footer { background: var(--footer); }
+  .blk.split { display: grid; grid-template-columns: 1fr 2.5fr; gap: 4px; padding: 0; }
+  .blk.split > div { padding: 6px 8px; border-radius: 5px; min-height: 60px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 2px; vertical-align: -1px; background: var(--sw); }
+  .legend .l-hero { --sw: var(--hero); } .legend .l-tiles { --sw: var(--tiles); } .legend .l-cards { --sw: var(--cards); }
+  .legend .l-list { --sw: var(--list); } .legend .l-filter { --sw: var(--filter); } .legend .l-widget { --sw: var(--widget); }
+
+  .patterns { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .patterns { grid-template-columns: 1fr 1fr 1fr; } }
+  .pattern { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .pattern h4 { margin: 0 0 4px; font-size: 15px; }
+  .pattern p { margin: 0; font-size: 14px; color: var(--muted); }
+  footer { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🇰🇷 Korea travel websites: what they cover and how their UI is laid out</h1>
+  <p>Researched 30 Oct 2026. Each wireframe is a sketch of the homepage from top to bottom, based on reading the live page. These are not screenshots.</p>
+</header>
+
+<main>
+  <h2>1. Coverage at a glance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Site</th><th>Cities / regions</th><th>Food</th><th>Hotels</th><th>Where to go</th><th>Transport</th></tr>
+      </thead>
+      <tbody id="matrix"></tbody>
+    </table>
+  </div>
+  <p class="nav">✔ dedicated section · ◐ partial (only bookable products or a single link) · — not covered</p>
+
+  <h2>2. Sites with links and UI wireframes</h2>
+  <div class="filters" id="filters"></div>
+  <div class="legend">
+    <span class="l-hero">Hero / slider</span><span class="l-tiles">Icon tiles / chips</span><span class="l-cards">Card grid / carousel</span>
+    <span class="l-list">Text / list sections</span><span class="l-filter">Filters / search</span><span class="l-widget">Widgets (calendar, map, planner)</span>
+  </div>
+  <br>
+  <div class="grid" id="sites"></div>
+
+  <h2>3. UI patterns worth copying for your own travel guide</h2>
+  <div class="patterns">
+    <div class="pattern"><h4>Five-topic tile row</h4><p>Visit Korea puts Transportation, Food and Accommodations in one row of icons right under the hero. That's a one-tap way into each of your five topics.</p></div>
+    <div class="pattern"><h4>One long city page</h4><p>Trip.com's Seoul page runs About, then Attractions, then Food, then Transport, then Where to Stay, then Best Time, all on one page. This is the closest match to "city + food + hotels + transport".</p></div>
+    <div class="pattern"><h4>Filter panel + map toggle</h4><p>Michelin has a left sidebar of filters (cuisine, price, diet), a sort row and a list/map switch. Good for a restaurant or hotel listing page.</p></div>
+    <div class="pattern"><h4>Search with suggestion chips</h4><p>Creatrip's hero is a search bar with chips under it (Myeongdong, Hongdae, KTX, AREX), so new visitors don't face an empty box.</p></div>
+    <div class="pattern"><h4>"First time here?" grid</h4><p>Visit Seoul and Visit Jeju both have a beginner block with visa, transport cards, maps and tax refund. It works well as a tile grid.</p></div>
+    <div class="pattern"><h4>Rated cards with badges</h4><p>Trazy and Trip.com cards show the rating and review count, a "From US$" price and badges like "Instant Booking". It's the standard look for listing cards.</p></div>
+  </div>
+</main>
+
+<footer>
+  Not checked: Visit Busan (TLS certificate error), Klook (blocked automated access), Trazy Blog (empty response). Korail's booking UI loads with JavaScript, so it couldn't be read. The Lonely Planet country page body was cut off.
+  Open those links yourself to see their UI.
+</footer>
+
+<script>
+  // Coverage values: 2 = dedicated section, 1 = partial, 0 = none
+  const SITES = [
+    {
+      name: "Visit Korea (official, KTO)", url: "https://english.visitkorea.or.kr/", type: "official",
+      cover: [2, 2, 2, 2, 2],
+      nav: "Plan Your Trip · Where to Go · Things to Do · Map · Search",
+      wire: [
+        ["hero", "Hero image slider + headline"],
+        ["tiles", "Quick tiles: Travel Basics · Transportation · Shopping · Food · Accommodations · Weather"],
+        ["list", "News & Announcements"],
+        ["cards", "Events & Discounts coupon carousel"],
+        ["cards", "Travel Highlights cards"],
+        ["widget", "Travel Planner CTA (login → itinerary board)"],
+        ["cards", "Suggested Itineraries (3 cards)"],
+        ["footer", "Footer + floating 1330 helpline chat"],
+      ],
+    },
+    {
+      name: "Visit Seoul (official, Seoul)", url: "https://english.visitseoul.net/", type: "official",
+      cover: [1, 2, 2, 2, 2],
+      nav: "Seoul Now · Travel Themes · Things to Do · Travel Information · My Favorites",
+      wire: [
+        ["hero", "Hero video / slider"],
+        ["cards", "Explore Seoul carousel"],
+        ["tiles", "First time in Seoul? 6 tiles: Guidebooks · Tax Refund · Visa · Transportation · Smart Travel · Info Center"],
+        ["widget", "Upcoming in Seoul! event calendar (day tiles)"],
+        ["cards", "Seoulites' Picks"],
+        ["cards", "Recommendations: Discover Seoul Pass · Tickets · Walking Tour"],
+        ["cards", "Visit Seoul TV (YouTube carousel)"],
+        ["footer", "Footer + app badges"],
+      ],
+    },
+    {
+      name: "Visit Jeju (official, Jeju island)", url: "https://www.visitjeju.net/en", type: "official",
+      cover: [1, 2, 2, 2, 0],
+      nav: "Explore (Attractions · Food · Stay · Shop · Festivals) · Tips · About Jeju · NOWDA",
+      wire: [
+        ["hero", "Hero slider"],
+        ["cards", "Festivals and events to enjoy right now"],
+        ["cards", "Tourist Destinations"],
+        ["tiles", "First Time To Jeju? Maps · Essentials · Weather · Recommendation"],
+        ["cards", "Themed Travel"],
+        ["cards", "Bucket List"],
+        ["widget", "Personalization popup (age group / gender → recommendations)"],
+        ["footer", "Footer"],
+      ],
+    },
+    {
+      name: "Trip.com: Seoul travel guide", url: "https://www.trip.com/travel-guide/destination/seoul-234/", type: "booking",
+      cover: [2, 2, 2, 2, 2],
+      nav: "Shortcut row: Attractions · Stays · Flights · Trip.Best · Attractions & Tours · Restaurants · More",
+      wire: [
+        ["hero", "Image strip + breadcrumb"],
+        ["list", "Trending in Seoul"],
+        ["widget", "About Seoul: weather °C/°F · 3-5 days · KRW"],
+        ["list", "Must-see Attractions · Food Guide"],
+        ["list", "Transportation: Air · Train (KTX) · Bus · Ferry · Subway · Taxi · Bike"],
+        ["list", "Where to Stay: Myeong-dong · Gangnam · Hongdae"],
+        ["filter", "Tabs: Best Things to Do · Family-friendly · Fall Viewing"],
+        ["cards", "Attraction cards (rating + From US$) · hotel cards · food tabs"],
+        ["cards", "3/4/5-day itinerary cards · reviews · FAQ"],
+      ],
+    },
+    {
+      name: "Trazy (tours & tickets)", url: "https://www.trazy.com/", type: "booking",
+      cover: [2, 0, 1, 2, 1],
+      nav: "Explore by destination · Download App · Language · Currency · Log in",
+      wire: [
+        ["hero", "Hero slider: Spend Less, Do More in Korea"],
+        ["tiles", "Quick-link pills"],
+        ["cards", "Trending Activities (★ rating, % OFF badges)"],
+        ["cards", "Beauty & Spa · Fall Tours · Tickets · Shows · K-pop"],
+        ["tiles", "Top Destinations: Seoul · Jeju · Busan …"],
+        ["list", "Top Tours / Activities numbered lists"],
+        ["footer", "Newsletter + footer"],
+      ],
+    },
+    {
+      name: "Creatrip (local tips & bookings)", url: "https://creatrip.com/en", type: "booking",
+      cover: [0, 2, 1, 2, 1],
+      nav: "Travel · Stays · Trends · Language · Search · Wishlist",
+      wire: [
+        ["hero", "Banner carousel"],
+        ["filter", "Search \"Korea Your Way\" + chips: Myeongdong · Hongdae · KTX · AREX …"],
+        ["tiles", "Category icons: Experiences · Food & Drink · K-Pop · K-Beauty · ALL"],
+        ["tiles", "🔥HOT sub-category chips"],
+        ["cards", "You might be interested in…"],
+      ],
+    },
+    {
+      name: "Michelin Guide: Seoul restaurants", url: "https://guide.michelin.com/en/kr/seoul-capital-area/kr-seoul/restaurants", type: "food",
+      cover: [1, 2, 1, 0, 0],
+      nav: "Restaurants · Hotels · Travel Guides · Magazine · My Lists",
+      wire: [
+        ["filter", "Sort chips (price · distance · favorites) + Map/List toggle"],
+        ["split", ""],
+        ["list", "Pagination: 1-48 of 180"],
+        ["footer", "Newsletter + footer"],
+      ],
+    },
+    {
+      name: "Korail (national trains, KTX)", url: "https://www.korail.com/global", type: "transport",
+      cover: [0, 0, 0, 0, 2],
+      nav: "Booking UI loads with JavaScript, so it couldn't be read",
+      warn: "Open it in a browser to see the booking flow.",
+      wire: [],
+    },
+    {
+      name: "Lonely Planet: South Korea", url: "https://www.lonelyplanet.com/south-korea", type: "guide",
+      cover: [2, 1, 1, 2, 1],
+      nav: "Destinations · Books · Trips (mega-menus with region tabs)",
+      warn: "Only the menus were captured, so the coverage scores are a guess from what Lonely Planet usually includes.",
+      wire: [],
+    },
+  ];
+
+  const TYPES = { all: "All", official: "Official tourism", booking: "Guides + booking", food: "Food", transport: "Transport", guide: "Editorial" };
+  const MARK = [["no", "—"], ["part", "◐"], ["yes", "✔"]];
+
+  const matrix = document.getElementById("matrix");
+  for (const s of SITES) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><a href="${s.url}" target="_blank" rel="noopener">${s.name}</a></td>` +
+      s.cover.map(v => `<td class="${MARK[v][0]}">${MARK[v][1]}</td>`).join("");
+    matrix.append(tr);
+  }
+
+  const grid = document.getElementById("sites");
+  for (const s of SITES) {
+    const el = document.createElement("article");
+    el.className = "site";
+    el.dataset.type = s.type;
+    const blocks = s.wire.map(([kind, label]) => kind === "split"
+      ? `<div class="blk split"><div class="blk filter">Filters: stars · cuisine · diet · price</div><div class="blk cards">Restaurant cards (name · price · cuisine · save · Reserve)</div></div>`
+      : `<div class="blk ${kind}">${label}</div>`).join("");
+    el.innerHTML = `
+      <h3>${s.name}</h3>
+      <div><span class="tag">${TYPES[s.type]}</span></div>
+      <a href="${s.url}" target="_blank" rel="noopener">${s.url}</a>
+      <div class="nav"><b>Nav:</b> ${s.nav}</div>
+      ${s.warn ? `<div class="warn">⚠ ${s.warn}</div>` : ""}
+      ${blocks ? `<div class="wire"><div class="wire-bar">Logo · nav · search</div>${blocks}</div>` : ""}`;
+    grid.append(el);
+  }
+
+  const filters = document.getElementById("filters");
+  for (const [key, label] of Object.entries(TYPES)) {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = label;
+    b.setAttribute("aria-pressed", key === "all");
+    b.onclick = () => {
+      filters.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b));
+      grid.querySelectorAll(".site").forEach(card => { card.hidden = key !== "all" && card.dataset.type !== key; });
+    };
+    filters.append(b);
+  }
+</script>
+</body>
+</html>
