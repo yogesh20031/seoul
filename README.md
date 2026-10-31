@@ -4,12 +4,12 @@ A travel guide to Seoul (places, food, hotels, transport, a city map) plus a gui
 travellers join paid **group tours** with strangers or book a **private guide**, and solo travellers
 can let the **day planner** order their stops. English/Korean, light/dark, glassy UI.
 
-| Part | Stack | Hosted on (free) |
-| --- | --- | --- |
-| `apps/web` | Next.js 16, React 19, Tailwind 4, next-intl, MapLibre | Vercel |
-| `apps/api` | Express 5, Prisma 6, Zod, JWT, Stripe (test mode) | Render |
-| `packages/shared` | Zod schemas and types used by both | (bundled) |
-| Database | Postgres | Neon |
+| Part              | Stack                                                 | Hosted on (free) |
+| ----------------- | ----------------------------------------------------- | ---------------- |
+| `apps/web`        | Next.js 16, React 19, Tailwind 4, next-intl, MapLibre | Vercel           |
+| `apps/api`        | Express 5, Prisma 6, Zod, JWT, Stripe (test mode)     | Render           |
+| `packages/shared` | Zod schemas and types used by both                    | (bundled)        |
+| Database          | Postgres                                              | Neon             |
 
 ## Run locally
 
@@ -37,7 +37,8 @@ needs a URL from the one before.
 
 ### 1. Database: Neon
 
-1. Sign up at [neon.tech](https://neon.tech) and create a project (region: Singapore or Tokyo).
+1. Sign up at [neon.tech](https://neon.tech) and create a project in **AWS US East 2 (Ohio)**, the same
+   region as the Render service in `render.yaml`. If you pick another region, change `region:` there to match.
 2. **Connect** → copy the **pooled** connection string (`DATABASE_URL`) and, with "Connection pooling"
    off, the **direct** one (`DIRECT_URL`).
 

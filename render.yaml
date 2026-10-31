@@ -5,7 +5,8 @@ services:
     name: seoul-api
     runtime: node
     plan: free
-    region: singapore
+    # Same region as the Neon database (AWS us-east-2), so queries stay local.
+    region: ohio
     branch: main
     # Build from the repo root so the pnpm workspace (and @seoul/shared) resolves.
     # Migrations run here because the free plan has no pre-deploy step.
