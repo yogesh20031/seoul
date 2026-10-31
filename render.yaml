@@ -22,7 +22,9 @@ services:
       paths:
         - apps/api/**
         - packages/shared/**
+        - package.json
         - pnpm-lock.yaml
+        - pnpm-workspace.yaml
         - render.yaml
     envVars:
       - key: NODE_VERSION
