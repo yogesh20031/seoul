@@ -6,6 +6,7 @@ import { ScrollStory } from "@/components/marketing/ScrollStory";
 import { Playground } from "@/components/marketing/Playground";
 import { DayNightSlider } from "@/components/marketing/DayNightSlider";
 import { FirstTimeGrid } from "@/components/marketing/FirstTimeGrid";
+import { WeatherSection } from "@/components/weather/WeatherSection";
 import { HowItWorks } from "@/components/marketing/HowItWorks";
 import { TopGuides } from "@/components/marketing/TopGuides";
 import { UpcomingTours } from "@/components/marketing/UpcomingTours";
@@ -60,6 +61,7 @@ export default async function HomePage({ params }: PageProps) {
       />
       <ScrollStory />
       <FirstTimeGrid />
+      <WeatherSection />
       <HowItWorks />
       <Playground />
       <TopGuides guides={topGuides} />

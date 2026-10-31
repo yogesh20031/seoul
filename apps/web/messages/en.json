@@ -665,5 +665,72 @@
       "NOT_FOUND": "We couldn't find that. It may have been removed.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "Weather": {
+    "eyebrow": "Weather",
+    "title": "Seoul weather on your dates",
+    "subtitle": "Pick a day of your trip. Up to 16 days ahead you get the live forecast; further out, what the weather is usually like on that date.",
+    "pickDate": "Trip date",
+    "forecast": "Forecast",
+    "typical": "Typical for this date",
+    "typicalNote": "Averages from the same week over the past {years} years, so expect some variation.",
+    "high": "High",
+    "low": "Low",
+    "rainChance": "Chance of rain",
+    "rainDays": "Rainy days",
+    "rainAmount": "Rain",
+    "wind": "Wind",
+    "uv": "UV index",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "choose": "Pick a date to see the weather.",
+    "loading": "Checking the sky over Seoul…",
+    "unavailable": "Weather isn't available for this date right now.",
+    "credit": "Weather data by Open-Meteo.com",
+    "umbrella": "Pack an umbrella.",
+    "units": {
+      "mm": "{value} mm",
+      "kmh": "{value} km/h"
+    },
+    "conditions": {
+      "clear": "Clear",
+      "partlyCloudy": "Partly cloudy",
+      "cloudy": "Cloudy",
+      "fog": "Foggy",
+      "drizzle": "Drizzle",
+      "rain": "Rain",
+      "snow": "Snow",
+      "thunder": "Thunderstorms"
+    },
+    "wear": {
+      "freezing": "Freezing: a padded coat, gloves, a hat and heat packs.",
+      "cold": "Cold: a warm coat and a couple of layers.",
+      "cool": "Cool: a light jacket or a sweater.",
+      "mild": "Mild: a T-shirt, plus a light layer for the evening.",
+      "hot": "Hot and humid: light clothes, sunscreen and plenty of water."
+    },
+    "seasonsTitle": "Seoul by season",
+    "seasons": {
+      "spring": {
+        "name": "Spring",
+        "months": "Apr – May",
+        "note": "Mild and bright, cherry blossoms in early April. Watch for yellow dust."
+      },
+      "summer": {
+        "name": "Summer",
+        "months": "Jun – Aug",
+        "note": "Hot and humid; the monsoon brings heavy rain from late June to July."
+      },
+      "autumn": {
+        "name": "Autumn",
+        "months": "Sep – Nov",
+        "note": "Clear skies and autumn leaves. The easiest time to visit."
+      },
+      "winter": {
+        "name": "Winter",
+        "months": "Dec – Mar",
+        "note": "Dry and freezing, often below -10° at night. Perfect for hot street food."
+      }
+    }
   }
 }

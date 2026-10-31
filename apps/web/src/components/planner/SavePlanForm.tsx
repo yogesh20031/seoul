@@ -11,6 +11,8 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { Field } from "@/components/ui/Field";
 import { FormMessage } from "@/components/ui/FormMessage";
 import { Input } from "@/components/ui/Input";
+import { WeatherInline } from "@/components/weather/WeatherInline";
+import { useSeoulWeather } from "@/hooks/useSeoulWeather";
 
 type SavePlanFormProps = {
   placeIds: string[];
@@ -31,6 +33,7 @@ export const SavePlanForm = ({
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const weather = useSeoulWeather();
 
   if (!canSave) {
     return (
@@ -46,6 +49,11 @@ export const SavePlanForm = ({
       </Card>
     );
   }
+
+  const pickDate = (next: string) => {
+    setDate(next);
+    void weather.load(next);
+  };
 
   const save = () => {
     setError(null);
@@ -99,9 +107,10 @@ export const SavePlanForm = ({
               />
             </Field>
             <Field label={t("planDate")} htmlFor="plan-date">
-              <DatePicker id="plan-date" value={date} onChange={setDate} />
+              <DatePicker id="plan-date" value={date} onChange={pickDate} />
             </Field>
           </div>
+          <WeatherInline state={weather.state} />
           <Button
             onClick={save}
             disabled={pending || title.trim().length < 2}
