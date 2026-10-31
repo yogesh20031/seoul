@@ -4,12 +4,7 @@ import { splitAmount } from "@seoul/shared";
 import { hashPassword } from "../src/lib/password";
 import { logger } from "../src/lib/logger";
 import { prisma } from "../src/lib/prisma";
-import {
-  addDays,
-  addMinutesToDate,
-  seoulInstant,
-  seoulToday,
-} from "../src/lib/time";
+import { addDays, seoulToday } from "../src/lib/time";
 import { attractions } from "./seed-data/attractions";
 import { dishes } from "./seed-data/dishes";
 import { hotels } from "./seed-data/hotels";
@@ -17,13 +12,17 @@ import { detailsFor } from "./seed-data/place-details";
 import { guides, travellers } from "./seed-data/people";
 import { photoFor } from "./seed-data/photos";
 import { restaurants } from "./seed-data/restaurants";
-import { pastTours, upcomingTours, type TourSeed } from "./seed-data/tours";
+import { pastTours, upcomingTours } from "./seed-data/tours";
 import { transport } from "./seed-data/transport";
-
-const PASSWORD = "password123";
-
-const avatarFor = (email: string) =>
-  `https://i.pravatar.cc/150?u=${encodeURIComponent(email)}`;
+import {
+  PASSWORD,
+  createGuideUser,
+  createTravellerUser,
+  placeLookup,
+  recomputeRatings,
+  seedTours,
+  type People,
+} from "./seed-lib";
 
 if (process.env.NODE_ENV === "production" && process.env.SEED_FORCE !== "1") {
   throw new Error(
@@ -59,15 +58,7 @@ const seedContent = async () => {
       imageCredit: photoFor(p.slug).credit,
     })),
   });
-  const placeRows = await prisma.place.findMany({
-    select: { id: true, slug: true, imageUrl: true },
-  });
-  const placeBySlug = new Map(placeRows.map((p) => [p.slug, p]));
-  const requirePlace = (slug: string) => {
-    const place = placeBySlug.get(slug);
-    if (!place) throw new Error(`Seed references unknown place "${slug}"`);
-    return place;
-  };
+  const requirePlace = await placeLookup();
 
   for (const { restaurantSlugs, ...dish } of dishes) {
     await prisma.dish.create({
@@ -93,134 +84,16 @@ const seedContent = async () => {
   return requirePlace;
 };
 
-const seedPeople = async () => {
+const seedPeople = async (): Promise<People> => {
   const passwordHash = await hashPassword(PASSWORD);
   const guideUsers = [];
-  for (const g of guides) {
-    guideUsers.push(
-      await prisma.user.create({
-        data: {
-          email: g.email,
-          passwordHash,
-          name: g.name,
-          role: "GUIDE",
-          country: g.country,
-          bio: g.bio,
-          avatarUrl: avatarFor(g.email),
-          guideProfile: {
-            create: {
-              headline: g.headline,
-              languages: g.languages,
-              specialties: g.specialties,
-              soloPrice: g.soloPrice,
-              soloDurationMin: g.soloDurationMin,
-              isVerified: g.isVerified,
-            },
-          },
-        },
-      }),
-    );
-  }
+  for (const g of guides)
+    guideUsers.push(await createGuideUser(g, passwordHash));
   const travellerUsers = [];
   for (const t of travellers) {
-    travellerUsers.push(
-      await prisma.user.create({
-        data: {
-          email: t.email,
-          passwordHash,
-          name: t.name,
-          role: "TRAVELLER",
-          country: t.country,
-          bio: t.bio,
-          avatarUrl: avatarFor(t.email),
-        },
-      }),
-    );
+    travellerUsers.push(await createTravellerUser(t, passwordHash));
   }
   return { guideUsers, travellerUsers };
-};
-
-type People = Awaited<ReturnType<typeof seedPeople>>;
-
-const seedTours = async (
-  tours: TourSeed[],
-  people: People,
-  requirePlace: (slug: string) => { id: string; imageUrl: string },
-  past: boolean,
-) => {
-  const now = new Date();
-  for (const t of tours) {
-    const guide = people.guideUsers[t.guide];
-    if (!guide) throw new Error(`Unknown guide index ${t.guide}`);
-    const startsAt = seoulInstant(
-      seoulToday(addDays(now, t.dayOffset)),
-      t.time,
-    );
-    const stops = t.stops.map(requirePlace);
-    const seatsBooked = t.bookings.reduce((sum, b) => sum + b.seats, 0);
-
-    const tour = await prisma.tour.create({
-      data: {
-        guideId: guide.id,
-        title: t.title,
-        description: t.description,
-        startsAt,
-        durationMin: t.durationMin,
-        meetingName: t.meetingName,
-        meetingLat: t.meetingLat,
-        meetingLng: t.meetingLng,
-        capacity: t.capacity,
-        pricePerPerson: t.pricePerPerson,
-        status: past
-          ? "COMPLETED"
-          : seatsBooked >= t.capacity
-            ? "FULL"
-            : "OPEN",
-        coverImageUrl: stops[0]?.imageUrl ?? null,
-        stops: {
-          create: stops.map((place, order) => ({ placeId: place.id, order })),
-        },
-      },
-    });
-
-    for (const b of t.bookings) {
-      const traveller = people.travellerUsers[b.traveller];
-      if (!traveller) throw new Error(`Unknown traveller index ${b.traveller}`);
-      const paidAt = addMinutesToDate(startsAt, -3 * 24 * 60);
-      const amount = b.seats * t.pricePerPerson;
-      const booking = await prisma.booking.create({
-        data: {
-          tourId: tour.id,
-          travellerId: traveller.id,
-          seats: b.seats,
-          amount,
-          status: "PAID",
-          paidAt,
-        },
-      });
-      await prisma.earning.create({
-        data: {
-          guideId: guide.id,
-          bookingId: booking.id,
-          status: past ? "AVAILABLE" : "PENDING",
-          createdAt: paidAt,
-          ...splitAmount(amount),
-        },
-      });
-      if (b.rating) {
-        await prisma.review.create({
-          data: {
-            guideId: guide.id,
-            authorId: traveller.id,
-            bookingId: booking.id,
-            rating: b.rating,
-            comment: b.comment ?? "",
-            createdAt: addMinutesToDate(startsAt, t.durationMin + 6 * 60),
-          },
-        });
-      }
-    }
-  }
 };
 
 type SoloSeed = {
@@ -357,24 +230,6 @@ const seedSolo = async (people: People) => {
   }
 };
 
-// Ratings are derived from the seeded reviews so they can never drift from the data.
-const recomputeRatings = async (people: People) => {
-  for (const guide of people.guideUsers) {
-    const stats = await prisma.review.aggregate({
-      where: { guideId: guide.id },
-      _avg: { rating: true },
-      _count: { _all: true },
-    });
-    await prisma.guideProfile.update({
-      where: { userId: guide.id },
-      data: {
-        ratingAvg: Math.round((stats._avg.rating ?? 0) * 100) / 100,
-        ratingCount: stats._count._all,
-      },
-    });
-  }
-};
-
 const main = async () => {
   await wipe();
   const requirePlace = await seedContent();
@@ -382,7 +237,7 @@ const main = async () => {
   await seedTours(pastTours, people, requirePlace, true);
   await seedTours(upcomingTours, people, requirePlace, false);
   await seedSolo(people);
-  await recomputeRatings(people);
+  await recomputeRatings(people.guideUsers.map((g) => g.id));
 
   const [places, tours, reviews] = await Promise.all([
     prisma.place.count(),
