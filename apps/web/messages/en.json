@@ -202,30 +202,6 @@
       "hotels": "Hanok stays to skyline towers, by neighbourhood",
       "transport": "Subway, buses, taxis and airport transfers"
     },
-    "featuresTitle": "Built for travelling together",
-    "features": {
-      "group": {
-        "title": "Travel with strangers, safely",
-        "body": "Every member of a group tour has a profile. See names, countries and how many people are coming before you pay.",
-        "point1": "See who you're travelling with",
-        "point2": "Small groups, capped by the guide",
-        "point3": "Guides are reviewed after every tour"
-      },
-      "planner": {
-        "title": "A planner that orders your day",
-        "body": "Pick the places, we work out the order, walking or subway time between them, and when you'll arrive.",
-        "point1": "Shortest route between your stops",
-        "point2": "Walk or subway for each leg",
-        "point3": "Share the plan with a link"
-      },
-      "guides": {
-        "title": "A dashboard for guides",
-        "body": "Guides set their price, time and meeting point, see who's booked, and accept private requests.",
-        "point1": "Your price, your schedule",
-        "point2": "Pick the meeting point on a map",
-        "point3": "Earnings tracked per booking"
-      }
-    },
     "testimonialsTitle": "Travellers say",
     "testimonials": {
       "t1": {
@@ -260,7 +236,60 @@
     "ctaTitle": "Your Seoul starts at a pin on the map.",
     "ctaBody": "Find a guide, join a group, or plan the day yourself. It takes two minutes.",
     "ctaPrimary": "Browse guides",
-    "ctaSecondary": "Open the map"
+    "ctaSecondary": "Open the map",
+    "toursEyebrow": "Group tours",
+    "popular": "Popular:",
+    "interests": {
+      "food": "Street food",
+      "history": "Palaces & history",
+      "kpop": "K-pop & K-drama",
+      "nightlife": "Nightlife",
+      "hiking": "Hiking",
+      "photo": "Photo walks"
+    },
+    "trust": {
+      "label": "Why book with SeoulMate",
+      "verified": {
+        "title": "Real local guides",
+        "body": "Rated by travellers after every tour. Look for the verified badge."
+      },
+      "members": {
+        "title": "See who's joining",
+        "body": "Every group tour shows its members before you book."
+      },
+      "secure": {
+        "title": "Secure checkout",
+        "body": "Payments go through Stripe, so your card details never touch our servers."
+      },
+      "languages": {
+        "title": "Your language",
+        "body": "Guides speak {count} languages, and the site works in English and Korean."
+      }
+    },
+    "readyDays": {
+      "eyebrow": "Ready-made days",
+      "title": "Not sure where to start? Borrow a day.",
+      "subtitle": "Three tried-and-tested routes. Open one in the day planner, add or drop stops, and we re-order the day for you.",
+      "stopsCount": "{count} stops",
+      "open": "Open in the day planner",
+      "days": {
+        "classic": {
+          "title": "First-day classics",
+          "body": "Palaces in the morning, hanok lanes and tea after lunch, the city lights from Namsan at night.",
+          "stops": "Gyeongbokgung Palace · Bukchon Hanok Village · Insadong · N Seoul Tower"
+        },
+        "food": {
+          "title": "A day of eating",
+          "body": "Fill a lunch box with old coins, graze through Gwangjang, walk it off by the stream, finish with Myeongdong snacks.",
+          "stops": "Tongin Market lunch box café · Gwangjang Market · Cheonggyecheon Stream · Myeongdong"
+        },
+        "kculture": {
+          "title": "K-culture and nightlife",
+          "body": "Concept stores in Seongsu, Zaha Hadid's DDP, then buskers and bars in Hongdae.",
+          "stops": "Seongsu-dong · Dongdaemun Design Plaza · Hongdae"
+        }
+      }
+    }
   },
   "Footer": {
     "about": "A demo travel guide for Seoul: places, food, hotels, transport and local guides.",

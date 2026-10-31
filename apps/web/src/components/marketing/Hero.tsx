@@ -1,4 +1,14 @@
-import { ArrowRight, Route, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Landmark,
+  Mic2,
+  MoonStar,
+  Mountain,
+  Route,
+  Sparkles,
+  UtensilsCrossed,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button-variants";
@@ -12,6 +22,17 @@ import { MagneticButton } from "./MagneticButton";
 type HeroProps = {
   stats: { guides: number; places: number; languages: number };
 };
+
+// Quick ways in, like the category row on Airbnb or ToursByLocals. `specialty` must match the
+// guides' specialty strings exactly, because it becomes the /guides filter.
+const INTERESTS = [
+  { key: "food", specialty: "Street food", icon: UtensilsCrossed },
+  { key: "history", specialty: "Palaces & history", icon: Landmark },
+  { key: "kpop", specialty: "K-pop & K-drama", icon: Mic2 },
+  { key: "nightlife", specialty: "Nightlife", icon: MoonStar },
+  { key: "hiking", specialty: "Hiking", icon: Mountain },
+  { key: "photo", specialty: "Photography", icon: Camera },
+] as const;
 
 export const Hero = ({ stats }: HeroProps) => {
   const t = useTranslations("Landing");
@@ -90,7 +111,31 @@ export const Hero = ({ stats }: HeroProps) => {
             </MagneticButton>
           </div>
 
-          <dl className={cn("grid grid-cols-3 gap-6 pt-2", ENTER, "delay-700")}>
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-2",
+              ENTER,
+              "delay-700",
+            )}
+          >
+            <span className="mr-1 text-xs text-text-secondary">
+              {t("popular")}
+            </span>
+            {INTERESTS.map(({ key, specialty, icon: Icon }) => (
+              <Link
+                key={key}
+                href={`/guides?specialty=${encodeURIComponent(specialty)}`}
+                className="inline-flex items-center gap-1.5 glassy-full px-3 py-1.5 text-xs font-medium transition-colors hover:bg-card-hover [&_svg]:size-3.5"
+              >
+                <Icon />
+                {t(`interests.${key}`)}
+              </Link>
+            ))}
+          </div>
+
+          <dl
+            className={cn("grid grid-cols-3 gap-6 pt-2", ENTER, "delay-1000")}
+          >
             <Stat value={stats.guides} label={t("statGuides")} />
             <Stat value={stats.places} label={t("statPlaces")} />
             <Stat value={stats.languages} label={t("statLanguages")} />

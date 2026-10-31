@@ -17,7 +17,7 @@ export const UpcomingTours = ({ tours }: { tours: TourCardData[] }) => {
     <Reveal className="py-16 sm:py-20">
       <Container className="flex flex-col gap-10">
         <SectionHeader
-          eyebrow="Group tours"
+          eyebrow={t("toursEyebrow")}
           title={t("toursTitle")}
           subtitle={t("toursSubtitle")}
           action={
@@ -30,11 +30,17 @@ export const UpcomingTours = ({ tours }: { tours: TourCardData[] }) => {
             </Link>
           }
         />
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {tours.slice(0, 6).map((tour) => (
-            <TourCard key={tour.id} tour={tour} />
+        {/* A swipeable rail: the next card peeks in at the edge, so it's clear there are more. */}
+        <ul className="-mx-4 scrollbar-none flex snap-x snap-mandatory scroll-px-4 gap-5 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:px-0">
+          {tours.map((tour) => (
+            <li
+              key={tour.id}
+              className="flex shrink-0 basis-[85%] snap-start sm:basis-[46%] lg:basis-[31%] [&>*]:w-full"
+            >
+              <TourCard tour={tour} />
+            </li>
           ))}
-        </div>
+        </ul>
       </Container>
     </Reveal>
   );

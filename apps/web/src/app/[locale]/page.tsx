@@ -8,10 +8,11 @@ import { DayNightSlider } from "@/components/marketing/DayNightSlider";
 import { FirstTimeGrid } from "@/components/marketing/FirstTimeGrid";
 import { WeatherSection } from "@/components/weather/WeatherSection";
 import { HowItWorks } from "@/components/marketing/HowItWorks";
+import { ReadyMadeDays } from "@/components/marketing/ReadyMadeDays";
+import { TrustBar } from "@/components/marketing/TrustBar";
 import { TopGuides } from "@/components/marketing/TopGuides";
 import { UpcomingTours } from "@/components/marketing/UpcomingTours";
 import { ExploreGrid } from "@/components/marketing/ExploreGrid";
-import { FeaturesSection } from "@/components/marketing/FeaturesSection";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { Faq } from "@/components/marketing/Faq";
 import { FinalCta } from "@/components/marketing/FinalCta";
@@ -34,7 +35,7 @@ export default async function HomePage({ params }: PageProps) {
     api<Paginated<TourCard>>("/tours", {
       withAuth: false,
       revalidate: REVALIDATE,
-      query: { pageSize: 6 },
+      query: { pageSize: 8 },
     }).catch(() => EMPTY),
     api<Paginated<GuideCard>>("/guides", {
       withAuth: false,
@@ -59,16 +60,17 @@ export default async function HomePage({ params }: PageProps) {
           languages: languages.size,
         }}
       />
+      <TrustBar languages={languages.size} />
+      <UpcomingTours tours={tours.items} />
+      <TopGuides guides={topGuides} />
+      <ReadyMadeDays />
+      <HowItWorks />
+      <ExploreGrid />
       <ScrollStory />
       <FirstTimeGrid />
       <WeatherSection />
-      <HowItWorks />
       <Playground />
-      <TopGuides guides={topGuides} />
-      <UpcomingTours tours={tours.items} />
       <DayNightSlider />
-      <ExploreGrid />
-      <FeaturesSection />
       <Testimonials />
       <Faq />
       <FinalCta />
