@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans_KR, Poppins } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { routing } from "@/i18n/routing";
 import { enterLocale } from "@/lib/locale";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
@@ -30,8 +29,11 @@ const notoKr = Noto_Sans_KR({
   preload: false,
 });
 
-export const generateStaticParams = () =>
-  routing.locales.map((locale) => ({ locale }));
+// Every page reads the session cookie (navbar user menu), so nothing here can be static anyway.
+// Saying so up front stops `next build` from pre-rendering pages that call the API: on Vercel the
+// free Render API is often asleep at build time, and one failed call would fail the deploy.
+// API reads are still cached, because lib/api.ts passes `revalidate` to fetch explicitly.
+export const dynamic = "force-dynamic";
 
 export const generateMetadata = async ({
   params,
