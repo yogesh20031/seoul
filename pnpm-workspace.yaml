@@ -3,9 +3,15 @@ packages:
   - packages/*
 
 # Install scripts we trust: Prisma/esbuild/sharp download native binaries,
-# embedded-postgres unpacks the local dev database.
+# embedded-postgres unpacks the local dev database. Every platform build is listed because pnpm
+# only installs the one for the current machine, and an unlisted one fails the install
+# (Render builds on linux-x64).
 allowBuilds:
   "@embedded-postgres/darwin-arm64": true
+  "@embedded-postgres/darwin-x64": true
+  "@embedded-postgres/linux-arm64": true
+  "@embedded-postgres/linux-x64": true
+  "@embedded-postgres/windows-x64": true
   "@parcel/watcher": true
   "@prisma/client": true
   "@prisma/engines": true
