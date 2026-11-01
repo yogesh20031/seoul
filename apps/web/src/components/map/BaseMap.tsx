@@ -38,6 +38,12 @@ export const BaseMap = ({
         attributionControl={{ compact: true }}
         onLoad={(event) => {
           localizeLabels(event.target, locale);
+          // MapLibre opens the compact credit on load and only folds it after the first drag; on a
+          // phone it covers the bottom of the map, so start folded. The (i) button still opens it.
+          event.target
+            .getContainer()
+            .querySelector(".maplibregl-compact-show")
+            ?.classList.remove("maplibregl-compact-show");
           onLoad?.(event);
         }}
         {...props}

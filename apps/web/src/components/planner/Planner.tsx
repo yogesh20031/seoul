@@ -84,8 +84,10 @@ export const Planner = ({ places, initialSelected, canSave }: PlannerProps) => {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[22rem_1fr]">
-      <div className="flex flex-col gap-4">
+    // minmax(0, …) tracks: plain grid columns grow to fit the longest place name, which pushed
+    // the cards off the screen on narrow phones.
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
+      <div className="flex min-w-0 flex-col gap-4">
         <Card className="flex flex-col gap-4">
           <h2 className="text-base font-semibold">{t("yourStops")}</h2>
           {selectedPlaces.length === 0 ? (
@@ -177,7 +179,7 @@ export const Planner = ({ places, initialSelected, canSave }: PlannerProps) => {
         </Card>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         {plan ? (
           <>
             <LazyRouteMap
