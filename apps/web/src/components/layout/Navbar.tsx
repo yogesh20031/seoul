@@ -35,7 +35,7 @@ export const Navbar = async () => {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1">
-          <LocaleToggle className="hidden sm:flex" />
+          <LocaleToggle />
           <ThemeToggle />
           {user ? (
             <UserMenu user={user} />

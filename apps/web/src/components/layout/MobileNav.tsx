@@ -6,10 +6,12 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { LocaleSwitch } from "./LocaleSwitch";
 import { EXPLORE_ITEMS, MAIN_ITEMS } from "./nav-items";
 
 export const MobileNav = ({ loggedIn }: { loggedIn: boolean }) => {
   const t = useTranslations("Nav");
+  const tToggle = useTranslations("Toggle");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -58,6 +60,12 @@ export const MobileNav = ({ loggedIn }: { loggedIn: boolean }) => {
                 {t(label)}
               </Link>
             ))}
+            <div className="mt-6 flex flex-col gap-2 px-3">
+              <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                {tToggle("language")}
+              </span>
+              <LocaleSwitch />
+            </div>
             {loggedIn ? null : (
               <div className="mt-6 flex flex-col gap-3">
                 <Link
