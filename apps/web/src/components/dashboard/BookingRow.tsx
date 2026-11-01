@@ -7,7 +7,6 @@ import { ActionButton } from "@/components/ui/ActionButton";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Card } from "@/components/ui/Card";
 import { formatDateTime, formatKrw } from "@/lib/format";
-import { ReviewForm } from "./ReviewForm";
 import { StatusBadge } from "./StatusBadge";
 
 export const BookingRow = ({
@@ -62,13 +61,6 @@ export const BookingRow = ({
           </ActionButton>
         ) : null}
       </div>
-      {booking.canReview ? (
-        <ReviewForm
-          guideId={booking.tour.guide.id}
-          guideName={booking.tour.guide.name}
-          bookingId={booking.id}
-        />
-      ) : null}
     </Card>
   );
 };

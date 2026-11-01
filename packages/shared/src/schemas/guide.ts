@@ -52,4 +52,6 @@ export type GuideDetail = GuideCard & {
   toursLed: number;
   upcomingTours: TourCard[];
   reviews: Review[];
+  /** How many reviews gave each star rating, 5 stars first. */
+  ratingBreakdown: { stars: number; count: number }[];
 };

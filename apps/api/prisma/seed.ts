@@ -12,7 +12,7 @@ import { detailsFor } from "./seed-data/place-details";
 import { guides, travellers } from "./seed-data/people";
 import { photoFor } from "./seed-data/photos";
 import { restaurants } from "./seed-data/restaurants";
-import { pastTours, upcomingTours } from "./seed-data/tours";
+import { pastTours, unratedTours, upcomingTours } from "./seed-data/tours";
 import { transport } from "./seed-data/transport";
 import {
   PASSWORD,
@@ -235,6 +235,7 @@ const main = async () => {
   const requirePlace = await seedContent();
   const people = await seedPeople();
   await seedTours(pastTours, people, requirePlace, true);
+  await seedTours(unratedTours, people, requirePlace, true);
   await seedTours(upcomingTours, people, requirePlace, false);
   await seedSolo(people);
   await recomputeRatings(people.guideUsers.map((g) => g.id));

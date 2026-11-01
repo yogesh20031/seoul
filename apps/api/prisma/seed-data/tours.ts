@@ -734,3 +734,51 @@ export const pastTours: TourSeed[] = [
     ],
   },
 ];
+
+// Ended a few days ago and not yet rated by Emma (the demo traveller), so the dashboard's
+// "Rate your trips" card has something to show. seed-unrated.ts adds them to a live database.
+export const unratedTours: TourSeed[] = [
+  {
+    guide: 0,
+    title: "Secret Garden & Ikseon-dong Afternoon",
+    description:
+      "A guided walk through Changdeokgung's Secret Garden, then tea and hanok alleys in Ikseon-dong.",
+    dayOffset: -2,
+    time: "13:00",
+    durationMin: 180,
+    capacity: 8,
+    pricePerPerson: 45_000,
+    meetingName: "Anguk Station Exit 3",
+    meetingLat: 37.5766,
+    meetingLng: 126.9854,
+    stops: ["changdeokgung-palace-secret-garden", "ikseon-dong-hanok-street"],
+    bookings: [
+      { traveller: 0, seats: 1 },
+      {
+        traveller: 3,
+        seats: 2,
+        rating: 5,
+        comment: "The Secret Garden in autumn colours was unforgettable.",
+      },
+    ],
+  },
+  {
+    guide: 7,
+    title: "Han River Sunset Ride",
+    description:
+      "An easy bike ride along the Han from Yeouido, timed for sunset, ending with fried chicken by the water.",
+    dayOffset: -5,
+    time: "16:30",
+    durationMin: 150,
+    capacity: 10,
+    pricePerPerson: 38_000,
+    meetingName: "Yeouinaru Station Exit 2",
+    meetingLat: 37.5271,
+    meetingLng: 126.9328,
+    stops: ["yeouido-hangang-park", "banpo-moonlight-rainbow-fountain"],
+    bookings: [
+      { traveller: 0, seats: 2 },
+      { traveller: 6, seats: 1 },
+    ],
+  },
+];

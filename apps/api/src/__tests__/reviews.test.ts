@@ -68,6 +68,7 @@ describe("reviews", () => {
       .send({ rating: 5, comment: "Wonderful", bookingId: aliceBooking.id });
     expect(first.status).toBe(201);
     expect(first.body.author.id).toBe(alice.user.id);
+    expect(first.body.guideRating).toEqual({ ratingAvg: 5, ratingCount: 1 });
 
     const duplicate = await api()
       .post(`/api/v1/guides/${guide.user.id}/reviews`)
@@ -75,15 +76,23 @@ describe("reviews", () => {
       .send({ rating: 1, bookingId: aliceBooking.id });
     expect(duplicate.status).toBe(409);
 
-    await api()
+    const second = await api()
       .post(`/api/v1/guides/${guide.user.id}/reviews`)
       .set(bob.auth)
       .send({ rating: 4, bookingId: bobBooking.id });
+    expect(second.body.guideRating).toEqual({ ratingAvg: 4.5, ratingCount: 2 });
 
     const profile = await api().get(`/api/v1/guides/${guide.user.id}`);
     expect(profile.body.ratingAvg).toBe(4.5);
     expect(profile.body.ratingCount).toBe(2);
     expect(profile.body.reviews).toHaveLength(2);
+    expect(profile.body.ratingBreakdown).toEqual([
+      { stars: 5, count: 1 },
+      { stars: 4, count: 1 },
+      { stars: 3, count: 0 },
+      { stars: 2, count: 0 },
+      { stars: 1, count: 0 },
+    ]);
 
     const list = await api().get(`/api/v1/guides/${guide.user.id}/reviews`);
     expect(list.body).toHaveLength(2);
@@ -109,5 +118,31 @@ describe("reviews", () => {
       .set(alice.auth)
       .send({ rating: 5, bookingId: booking.id });
     expect(res.status).toBe(400);
+  });
+
+  it("counts every rating when reviews for one guide arrive at the same time", async () => {
+    const guide = await registerUser("GUIDE");
+    const past = await createTour(guide.user.id, hoursFromNow(-72));
+    const travellers = await Promise.all(
+      [5, 4, 3, 5, 2].map(async (rating) => {
+        const traveller = await registerUser("TRAVELLER");
+        const booking = await payBooking(past.id, traveller.user.id);
+        return { traveller, booking, rating };
+      }),
+    );
+
+    const responses = await Promise.all(
+      travellers.map(({ traveller, booking, rating }) =>
+        api()
+          .post(`/api/v1/guides/${guide.user.id}/reviews`)
+          .set(traveller.auth)
+          .send({ rating, bookingId: booking.id }),
+      ),
+    );
+    expect(responses.map((r) => r.status)).toEqual([201, 201, 201, 201, 201]);
+
+    const profile = await api().get(`/api/v1/guides/${guide.user.id}`);
+    expect(profile.body.ratingCount).toBe(5);
+    expect(profile.body.ratingAvg).toBe(3.8);
   });
 });

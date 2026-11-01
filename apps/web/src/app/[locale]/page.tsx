@@ -72,7 +72,7 @@ export default async function HomePage({ params }: PageProps) {
       <Playground />
       <DayNightSlider />
       <Testimonials />
-      <Faq />
+      <Faq languages={languages.size} />
       <FinalCta />
     </>
   );

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { GuideDetail, Locale } from "@seoul/shared";
+import { RatingBreakdown } from "@/components/guides/RatingBreakdown";
 import { ReviewList } from "@/components/guides/ReviewList";
 import { SoloRequestForm } from "@/components/guides/SoloRequestForm";
 import { TourCard } from "@/components/tours/TourCard";
@@ -97,7 +98,15 @@ export default async function GuideProfilePage({ params }: PageProps) {
             {guide.reviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("noReviews")}</p>
             ) : (
-              <ReviewList reviews={guide.reviews} />
+              <>
+                <RatingBreakdown
+                  name={guide.name}
+                  ratingAvg={guide.ratingAvg}
+                  ratingCount={guide.ratingCount}
+                  ratingBreakdown={guide.ratingBreakdown}
+                />
+                <ReviewList reviews={guide.reviews} />
+              </>
             )}
           </section>
         </div>

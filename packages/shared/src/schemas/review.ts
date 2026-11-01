@@ -13,6 +13,9 @@ export const createReviewSchema = z
   });
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;
 
+/** Highest first, the order the breakdown and the star picker labels are shown in. */
+export const RATING_STARS = [5, 4, 3, 2, 1] as const;
+
 export type Review = {
   id: string;
   rating: number;
@@ -24,4 +27,9 @@ export type Review = {
     avatarUrl: string | null;
     country: string | null;
   };
+};
+
+/** A new review plus the guide's score after it was counted, so the UI can show the effect. */
+export type CreatedReview = Review & {
+  guideRating: { ratingAvg: number; ratingCount: number };
 };

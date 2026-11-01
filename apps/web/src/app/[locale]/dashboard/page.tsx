@@ -9,6 +9,7 @@ import {
 import { getTranslations } from "next-intl/server";
 import type { Booking, Itinerary, SoloRequest } from "@seoul/shared";
 import { BookingRow } from "@/components/dashboard/BookingRow";
+import { RateTrips } from "@/components/dashboard/RateTrips";
 import { SoloRow } from "@/components/dashboard/SoloRow";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -70,6 +71,8 @@ export default async function TravellerDashboardPage({ params }: PageProps) {
           </ButtonLink>
         }
       />
+
+      <RateTrips bookings={bookings} solo={solo} />
 
       <div className="grid gap-10 lg:grid-cols-2">
         <Section title={t("bookings")}>

@@ -1,8 +1,9 @@
 import type { Prisma } from "@prisma/client";
-import type {
-  GuideDetail,
-  GuideQuery,
-  UpdateGuideProfileInput,
+import {
+  RATING_STARS,
+  type GuideDetail,
+  type GuideQuery,
+  type UpdateGuideProfileInput,
 } from "@seoul/shared";
 import { notFound } from "../../lib/http-error";
 import {
@@ -92,7 +93,7 @@ export const getGuide = async (id: string): Promise<GuideDetail> => {
     include: guideCardInclude(now),
   });
   if (!row) throw notFound("Guide");
-  const [tours, reviews, toursLed] = await Promise.all([
+  const [tours, reviews, toursLed, starCounts] = await Promise.all([
     prisma.tour.findMany({
       where: {
         guideId: id,
@@ -109,7 +110,15 @@ export const getGuide = async (id: string): Promise<GuideDetail> => {
       take: 20,
     }),
     countToursLed(id),
+    prisma.review.groupBy({
+      by: ["rating"],
+      where: { guideId: id },
+      _count: { _all: true },
+    }),
   ]);
+  const countFor = new Map(
+    starCounts.map((row) => [row.rating, row._count._all]),
+  );
   return {
     ...toGuideCard(row),
     bio: row.user.bio,
@@ -118,6 +127,10 @@ export const getGuide = async (id: string): Promise<GuideDetail> => {
     toursLed,
     upcomingTours: tours.map(toTourCard),
     reviews: reviews.map(toReview),
+    ratingBreakdown: RATING_STARS.map((stars) => ({
+      stars,
+      count: countFor.get(stars) ?? 0,
+    })),
   };
 };
 

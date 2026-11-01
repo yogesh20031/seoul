@@ -66,7 +66,10 @@ export const createReview = async (
     throw badRequest("This trip was not with this guide");
 
   try {
-    const review = await prisma.$transaction(async (tx) => {
+    const { created, guideRating } = await prisma.$transaction(async (tx) => {
+      // Lock the guide's row first: two reviews landing together would otherwise each average
+      // without the other's rating, and the last write would drop one from the total.
+      await tx.$queryRaw`SELECT 1 FROM "GuideProfile" WHERE "userId" = ${guideId} FOR UPDATE`;
       const created = await tx.review.create({
         data: {
           guideId,
@@ -83,16 +86,17 @@ export const createReview = async (
         _avg: { rating: true },
         _count: { _all: true },
       });
-      await tx.guideProfile.update({
+      const guide = await tx.guideProfile.update({
         where: { userId: guideId },
         data: {
           ratingAvg: Math.round((stats._avg.rating ?? 0) * 100) / 100,
           ratingCount: stats._count._all,
         },
+        select: { ratingAvg: true, ratingCount: true },
       });
-      return created;
+      return { created, guideRating: guide };
     });
-    return toReview(review);
+    return { ...toReview(created), guideRating };
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&

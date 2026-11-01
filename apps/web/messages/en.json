@@ -221,17 +221,55 @@
       }
     },
     "faqTitle": "Questions, answered",
+    "faqSubtitle": "Booking, payments and guides: what travellers ask before their first trip.",
     "faq": {
-      "q1": "How do group tours work?",
-      "a1": "A guide publishes a tour with a date, meeting point, stops and a price per person. You book seats, pay, and appear in the member list so everyone knows who's coming.",
-      "q2": "Is my payment real?",
-      "a2": "Not in this demo. Payments run in Stripe test mode, so use the test card 4242 4242 4242 4242 with any future date and CVC.",
-      "q3": "What's the difference between a group tour and a solo guide?",
-      "a3": "A group tour is shared with other travellers and priced per person. A solo guide is just you (and your party) on a date you choose, at the guide's own price.",
-      "q4": "Can I cancel?",
-      "a4": "Unpaid bookings can be cancelled any time. Paid group bookings can be cancelled for a refund up to 24 hours before the tour starts.",
-      "q5": "Do I need a guide to use the planner?",
-      "a5": "No. The day planner is free, needs no account, and works for any places on the map. Log in only if you want to save it."
+      "groups": {
+        "booking": "Booking a trip",
+        "payments": "Payments & cancellations",
+        "trust": "Guides & reviews"
+      },
+      "items": {
+        "groupTours": {
+          "q": "How do group tours work?",
+          "a": "A local guide posts a tour with the date, start time, meeting point, stops and a price per person. You book up to 6 seats, pay at checkout and join the member list. Each guide sets their own group size, never more than 20 people."
+        },
+        "privateGuide": {
+          "q": "How do I book a private guide?",
+          "a": "Open a guide's profile and request a date and start time, with a note about what you'd like to see. The guide accepts and sets the meeting point, and only then do you pay their listed price. You're never charged for a request the guide declines."
+        },
+        "whoJoins": {
+          "q": "Can I see who else is on a tour?",
+          "a": "Yes. Every tour page shows how many seats are taken and who has booked them, with each traveller's name, country and short bio. Your guide sees the same list, so nobody turns up as a total stranger."
+        },
+        "planner": {
+          "q": "Can I explore Seoul without a guide?",
+          "a": "Yes. Pick the places you want to see and the day planner puts them in a sensible order, with walking and subway times between stops. It's free and needs no account; sign in only to save or share your plan."
+        },
+        "payment": {
+          "q": "How do I pay, and is it secure?",
+          "a": "Checkout is handled by Stripe, so your card details go straight to Stripe and are never stored by us. Prices are in Korean won. Your seats are held for 30 minutes while you complete payment."
+        },
+        "cancel": {
+          "q": "What's the cancellation policy?",
+          "a": "Group tours: cancel up to 24 hours before the start for a full refund to your original card; within 24 hours, bookings can't be cancelled. Private guides: cancel free of charge any time before you pay. Refunds usually reach your card within 5–10 business days."
+        },
+        "guideCancels": {
+          "q": "What if my guide cancels?",
+          "a": "You get a full refund automatically, with nothing to claim. The booking shows as refunded in your dashboard straight away."
+        },
+        "guides": {
+          "q": "Who are the guides?",
+          "a": "Locals who live in Seoul and know it well. Every guide has a public profile with their languages, specialties, price and the tours they've led. Verified guides carry a badge on their profile."
+        },
+        "reviews": {
+          "q": "Are the reviews real?",
+          "a": "Only travellers who paid for a trip can review it, and only once it has ended, with one review per trip. A guide's score is the average of all those ratings and updates the moment a new review is posted."
+        },
+        "languages": {
+          "q": "Which languages do guides speak?",
+          "a": "Between them, our guides speak {count} languages. Use the language filter in the guide search to find someone who speaks yours."
+        }
+      }
     },
     "ctaTitle": "Your Seoul starts at a pin on the map.",
     "ctaBody": "Find a guide, join a group, or plan the day yourself. It takes two minutes.",
@@ -478,7 +516,9 @@
     "requestSubmit": "Send request",
     "requestSent": "Request sent. You'll pay once {name} accepts. Track it in My trips.",
     "requestLoginPrompt": "Log in as a traveller to book a private tour.",
-    "guideCantBook": "Guide accounts can't book tours."
+    "guideCantBook": "Guide accounts can't book tours.",
+    "ratingNote": "Only travellers who paid for and finished a trip with {name} can rate them.",
+    "starsShare": "{stars} stars: {count}"
   },
   "Tours": {
     "count": "{count, plural, =0 {No upcoming tours} one {# upcoming tour} other {# upcoming tours}}",
@@ -585,13 +625,10 @@
     "past": "Past",
     "pay": "Pay now",
     "cancel": "Cancel",
-    "review": "Leave a review",
     "reviewTitle": "How was your tour with {name}?",
-    "rating": "Rating",
-    "comment": "Comment",
+    "comment": "Comment (optional)",
     "commentPlaceholder": "What made it great? Anything to improve?",
     "submitReview": "Post review",
-    "reviewed": "Thanks for the review!",
     "statuses": {
       "PENDING_PAYMENT": "Payment pending",
       "PAID": "Confirmed",
@@ -611,7 +648,21 @@
     "saved": "Saved",
     "cancelConfirm": "Yes, cancel it",
     "editProfile": "Edit profile",
-    "stops": "{count, plural, one {# stop} other {# stops}}"
+    "stops": "{count, plural, one {# stop} other {# stops}}",
+    "rateTitle": "{count, plural, one {Rate your last trip} other {Rate your # recent trips}}",
+    "rateSubtitle": "Your rating goes straight into your guide's overall score and helps the next traveller choose.",
+    "soloTripWith": "Private day with {name}",
+    "starsLabel": "{count, plural, one {# star} other {# stars}}",
+    "ratingLabels": {
+      "1": "Poor",
+      "2": "Fair",
+      "3": "Good",
+      "4": "Very good",
+      "5": "Excellent"
+    },
+    "pickRating": "Tap a star to rate",
+    "submittingReview": "Posting…",
+    "reviewedScore": "Thanks! {name} now has ★ {score} from {count, plural, one {# review} other {# reviews}}."
   },
   "GuideDash": {
     "title": "Guide dashboard",

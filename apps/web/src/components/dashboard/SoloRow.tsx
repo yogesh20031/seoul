@@ -7,7 +7,6 @@ import { ActionButton } from "@/components/ui/ActionButton";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { formatDate, formatKrw } from "@/lib/format";
-import { ReviewForm } from "./ReviewForm";
 import { StatusBadge } from "./StatusBadge";
 
 export const SoloRow = ({ request }: { request: SoloRequest }) => {
@@ -66,13 +65,6 @@ export const SoloRow = ({ request }: { request: SoloRequest }) => {
             </ActionButton>
           ) : null}
         </div>
-      ) : null}
-      {request.canReview ? (
-        <ReviewForm
-          guideId={request.guide.id}
-          guideName={request.guide.name}
-          soloRequestId={request.id}
-        />
       ) : null}
     </Card>
   );
