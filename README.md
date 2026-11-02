@@ -78,6 +78,10 @@ The free plan sleeps after 15 idle minutes; the first request afterwards takes 3
    Copy its signing secret (`whsec_…`) into Render's `STRIPE_WEBHOOK_SECRET`.
 3. Pay with test card `4242 4242 4242 4242`, any future date, any CVC.
 
+## Docs
+
+Plain-language technical docs: [frontend](docs/frontend.md) and [backend](docs/backend.md).
+
 ## Photos
 
 Real photos from Wikimedia Commons (CC0, public domain, CC BY, CC BY-SA), self-hosted in
