@@ -3,7 +3,7 @@ import type {
   AcceptSoloRequestInput,
   CheckoutResponse,
   CreateSoloRequestInput,
-  Locale,
+  SoloPayInput,
   SoloRequest,
 } from "@seoul/shared";
 import {
@@ -175,10 +175,10 @@ export const cancelSoloRequest = async (travellerId: string, id: string) => {
 export const paySoloRequest = async (
   travellerId: string,
   id: string,
-  locale: Locale,
+  { locale, returnTo }: SoloPayInput,
 ): Promise<CheckoutResponse> => {
   const row = await findForTraveller(travellerId, id);
   if (row.status !== "ACCEPTED")
     throw conflict("The guide has to accept this request before you can pay");
-  return createSoloCheckout(row, row.guide.user.name, locale);
+  return createSoloCheckout(row, row.guide.user.name, locale, returnTo);
 };

@@ -91,7 +91,7 @@ export const createBooking = async (
     return { booking, tour };
   });
 
-  return createBookingCheckout(booking, tour, input.locale);
+  return createBookingCheckout(booking, tour, input.locale, input.returnTo);
 };
 
 export const listMyBookings = async (travellerId: string) => {

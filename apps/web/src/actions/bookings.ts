@@ -12,6 +12,7 @@ import {
 import { api } from "@/lib/api";
 import { apiFailure } from "@/lib/action-errors";
 import { userWithRole } from "@/lib/auth-guard";
+import { currentPageUrl } from "@/lib/return-to";
 import {
   fieldErrorsFrom,
   formNumber,
@@ -32,6 +33,7 @@ export const bookTourAction = async (
     tourId: formString(formData, "tourId"),
     seats: formNumber(formData, "seats"),
     locale: await getLocale(),
+    returnTo: await currentPageUrl(),
   });
   if (!parsed.success)
     return { status: "error", fieldErrors: fieldErrorsFrom(parsed.error) };

@@ -85,12 +85,11 @@ soloRouter.post(
   requireAuth,
   requireRole("TRAVELLER"),
   async (req, res) => {
-    const { locale } = parse(soloPaySchema, req.body ?? {});
     res.json(
       await paySoloRequest(
         getAuth(req).userId,
         parse(idSchema, req.params.id),
-        locale,
+        parse(soloPaySchema, req.body ?? {}),
       ),
     );
   },

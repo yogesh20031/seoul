@@ -12,8 +12,34 @@ export const CHECKOUT_MINUTES = 31;
 
 type CheckoutKind = "booking" | "solo";
 
-const mockCheckoutUrl = (locale: Locale, kind: CheckoutKind, id: string) =>
-  `${env.webUrl}/${locale}/checkout/success?mock=1&kind=${kind}&id=${id}`;
+/**
+ * Where checkout sends people afterwards. The page they paid from is only trusted when its origin
+ * is one of ours (WEB_URL); anything else falls back to the main site, so this can't become an
+ * open redirect. `next` is the path the success and cancel pages bounce back to.
+ */
+const checkoutReturn = (returnTo: string | undefined) => {
+  const url = returnTo ? URL.parse(returnTo) : null;
+  if (url && env.webOrigins.includes(url.origin))
+    return { origin: url.origin, next: `${url.pathname}${url.search}` };
+  return { origin: env.webUrl, next: null };
+};
+
+const checkoutUrls = (
+  kind: CheckoutKind,
+  id: string,
+  locale: Locale,
+  returnTo: string | undefined,
+) => {
+  const { origin, next } = checkoutReturn(returnTo);
+  const back = next ? `&next=${encodeURIComponent(next)}` : "";
+  const base = `${origin}/${locale}/checkout`;
+  return {
+    // Stripe fills in {CHECKOUT_SESSION_ID} itself, so it must stay unencoded.
+    success: `${base}/success?session_id={CHECKOUT_SESSION_ID}${back}`,
+    cancel: `${base}/cancel?kind=${kind}&id=${id}${back}`,
+    mock: `${base}/success?mock=1&kind=${kind}&id=${id}${back}`,
+  };
+};
 
 const createSession = async (params: {
   kind: CheckoutKind;
@@ -21,7 +47,7 @@ const createSession = async (params: {
   name: string;
   quantity: number;
   unitAmount: number;
-  locale: Locale;
+  urls: ReturnType<typeof checkoutUrls>;
 }) => {
   const session = await getStripe().checkout.sessions.create({
     mode: "payment",
@@ -40,8 +66,8 @@ const createSession = async (params: {
     expires_at: Math.floor(
       addMinutesToDate(new Date(), CHECKOUT_MINUTES).getTime() / 1000,
     ),
-    success_url: `${env.webUrl}/${params.locale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${env.webUrl}/${params.locale}/checkout/cancel?kind=${params.kind}&id=${params.id}`,
+    success_url: params.urls.success,
+    cancel_url: params.urls.cancel,
   });
   if (!session.url) throw new Error("Stripe did not return a checkout URL");
   return { sessionId: session.id, url: session.url };
@@ -51,10 +77,12 @@ export const createBookingCheckout = async (
   booking: { id: string; seats: number },
   tour: { title: string; pricePerPerson: number },
   locale: Locale,
+  returnTo?: string,
 ): Promise<CheckoutResponse> => {
+  const urls = checkoutUrls("booking", booking.id, locale, returnTo);
   if (env.PAYMENTS_MODE === "mock") {
     await markBookingPaid(booking.id);
-    return { checkoutUrl: mockCheckoutUrl(locale, "booking", booking.id) };
+    return { checkoutUrl: urls.mock };
   }
   const session = await createSession({
     kind: "booking",
@@ -62,7 +90,7 @@ export const createBookingCheckout = async (
     name: tour.title,
     quantity: booking.seats,
     unitAmount: tour.pricePerPerson,
-    locale,
+    urls,
   });
   await prisma.booking.update({
     where: { id: booking.id },
@@ -75,10 +103,12 @@ export const createSoloCheckout = async (
   solo: { id: string; amount: number },
   guideName: string,
   locale: Locale,
+  returnTo?: string,
 ): Promise<CheckoutResponse> => {
+  const urls = checkoutUrls("solo", solo.id, locale, returnTo);
   if (env.PAYMENTS_MODE === "mock") {
     await markSoloPaid(solo.id);
-    return { checkoutUrl: mockCheckoutUrl(locale, "solo", solo.id) };
+    return { checkoutUrl: urls.mock };
   }
   const session = await createSession({
     kind: "solo",
@@ -86,7 +116,7 @@ export const createSoloCheckout = async (
     name: `Private tour with ${guideName}`,
     quantity: 1,
     unitAmount: solo.amount,
-    locale,
+    urls,
   });
   await prisma.soloRequest.update({
     where: { id: solo.id },

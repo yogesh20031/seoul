@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { latSchema, lngSchema, timeOfDaySchema } from "./common";
+import {
+  latSchema,
+  lngSchema,
+  returnToSchema,
+  timeOfDaySchema,
+} from "./common";
 import type { MemberPreview } from "./tour";
 
 export const SOLO_STATUSES = [
@@ -29,7 +34,9 @@ export type AcceptSoloRequestInput = z.infer<typeof acceptSoloRequestSchema>;
 
 export const soloPaySchema = z.object({
   locale: z.enum(["en", "ko"]).default("en"),
+  returnTo: returnToSchema.optional(),
 });
+export type SoloPayInput = z.infer<typeof soloPaySchema>;
 
 export type SoloRequest = {
   id: string;

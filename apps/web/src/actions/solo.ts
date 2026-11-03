@@ -13,6 +13,7 @@ import {
 import { api } from "@/lib/api";
 import { apiFailure } from "@/lib/action-errors";
 import { userWithRole } from "@/lib/auth-guard";
+import { currentPageUrl } from "@/lib/return-to";
 import {
   fieldErrorsFrom,
   formNumber,
@@ -70,7 +71,7 @@ export const paySoloAction = async (
       `/solo-requests/${parsed.data.requestId}/pay`,
       {
         method: "POST",
-        body: { locale: await getLocale() },
+        body: { locale: await getLocale(), returnTo: await currentPageUrl() },
       },
     );
   } catch (error) {

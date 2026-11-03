@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { idSchema, latSchema, lngSchema, pageQuerySchema } from "./common";
+import {
+  idSchema,
+  latSchema,
+  lngSchema,
+  pageQuerySchema,
+  returnToSchema,
+} from "./common";
 import type { PlaceSummary } from "./place";
 import type { PublicUser } from "./user";
 
@@ -109,6 +115,7 @@ export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export const createBookingSchema = z.object({
   seats: z.number().int().min(1).max(6),
   locale: z.enum(["en", "ko"]).default("en"),
+  returnTo: returnToSchema.optional(),
 });
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 

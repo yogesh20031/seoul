@@ -154,7 +154,11 @@ SoloRequest: PENDING → ACCEPTED → PAID → COMPLETED   (or DECLINED / CANCEL
 1. Traveller books. The service locks the tour row, checks the seats, creates a
    `PENDING_PAYMENT` booking with a 31-minute hold, and creates a Stripe Checkout session.
    It returns `checkoutUrl`. In mock mode the booking is marked paid at once and the URL is our own success page.
-2. Traveller pays on Stripe and is sent back to `/checkout/success?session_id=...`.
+2. Traveller pays on Stripe and is sent back to `/checkout/success?session_id=...` on the site they
+   paid from. Once the payment is confirmed, that page redirects to the page where checkout started,
+   such as the tour page. Cancelling on Stripe goes straight back there too. The web app sends that
+   page as `returnTo`. The API only uses it when its origin is listed in `WEB_URL`, otherwise it uses
+   the first `WEB_URL` origin.
 3. Two things can mark it paid, whichever comes first:
    the Stripe **webhook** (`checkout.session.completed`) or the web's **`/payments/confirm`** call.
    `markBookingPaid` only flips `PENDING_PAYMENT → PAID`, so doing it twice is harmless.

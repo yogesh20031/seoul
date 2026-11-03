@@ -189,4 +189,41 @@ describe("booking flow (mock payments)", () => {
       ),
     ).toBe(true);
   });
+
+  it("sends checkout back to the page it started on, but only for our own sites", async () => {
+    const guide = await registerUser("GUIDE");
+    const tour = await createTour(guide.user.id);
+    const book = async (returnTo?: unknown) => {
+      const traveller = await registerUser("TRAVELLER");
+      return api()
+        .post(`/api/v1/tours/${tour.id}/bookings`)
+        .set(traveller.auth)
+        .send({ seats: 1, locale: "en", returnTo });
+    };
+
+    // WEB_URL in tests is http://localhost:3000.
+    const ours = await book(
+      `http://localhost:3000/en/tours/${tour.id}?from=list`,
+    );
+    expect(ours.status).toBe(201);
+    const oursUrl = new URL(ours.body.checkoutUrl);
+    expect(oursUrl.origin).toBe("http://localhost:3000");
+    expect(oursUrl.pathname).toBe("/en/checkout/success");
+    expect(oursUrl.searchParams.get("next")).toBe(
+      `/en/tours/${tour.id}?from=list`,
+    );
+
+    const foreign = await book(`https://evil.example/en/tours/${tour.id}`);
+    expect(foreign.status).toBe(201);
+    const foreignUrl = new URL(foreign.body.checkoutUrl);
+    expect(foreignUrl.origin).toBe("http://localhost:3000");
+    expect(foreignUrl.searchParams.has("next")).toBe(false);
+
+    const without = await book();
+    expect(new URL(without.body.checkoutUrl).searchParams.has("next")).toBe(
+      false,
+    );
+
+    expect((await book("not a url")).status).toBe(400);
+  });
 });

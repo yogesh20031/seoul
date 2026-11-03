@@ -6,6 +6,10 @@ export type Locale = z.infer<typeof localeSchema>;
 
 export const idSchema = z.string().min(1).max(64);
 
+/** Full URL of the page a payment started on, so checkout can send the user back there. */
+export const RETURN_TO_MAX_LENGTH = 2000;
+export const returnToSchema = z.url().max(RETURN_TO_MAX_LENGTH);
+
 export const pageQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(50).default(12),

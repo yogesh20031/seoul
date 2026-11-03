@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { CheckCircle2, Hourglass } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Container } from "@/components/ui/Container";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { api, ApiError } from "@/lib/api";
+import { safeNextPath } from "@/lib/form";
 import { enterLocale } from "@/lib/locale";
 import { firstParam } from "@/lib/url";
 
@@ -56,6 +58,10 @@ export default async function CheckoutSuccessPage({
   const paid =
     firstParam(query.mock) === "1" ||
     (sessionId ? await confirmStripeSession(sessionId) : false);
+  // Back to the page the payment started on, which now shows the booking. If Stripe's answer
+  // isn't in yet we stay here, so the user sees "pending" instead of an unchanged page.
+  const next = safeNextPath(firstParam(query.next));
+  if (paid && next) redirect(next);
 
   return (
     <Container className="max-w-xl py-24">
